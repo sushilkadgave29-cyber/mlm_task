@@ -1,0 +1,181 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f0f2f5;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .dashboard-header h2 {
+            font-weight: 700;
+            color: #343a40;
+        }
+        .btn-gradient {
+            background: linear-gradient(90deg, #4e54c8, #8f94fb);
+            color: #fff;
+            font-weight: 500;
+            border: none;
+        }
+        .btn-gradient:hover {
+            background: linear-gradient(90deg, #8f94fb, #4e54c8);
+        }
+        .card-stat {
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+            padding: 30px;
+            text-align: center;
+        }
+        .card-stat:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.12);
+        }
+        .card-stat h5 {
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        .card-stat p {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .table thead {
+            background: #4e54c8;
+            color: #fff;
+        }
+        .table th, .table td {
+            vertical-align: middle;
+        }
+        .downline ul {
+            list-style: none;
+            padding-left: 1rem;
+        }
+        .downline li::before {
+            content: "•";
+            color: #4e54c8;
+            display: inline-block; 
+            width: 1em;
+            margin-left: -1em;
+        }
+        .downline li {
+            margin-bottom: 5px;
+        }
+        .card-section {
+            border-radius: 15px;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        .section-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #4e54c8;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-5">
+    <!-- Header -->
+    <div class="dashboard-header">
+        <h2>Welcome, {{ profile.user.username }}</h2>
+        <a href="{% url 'mlm:logout' %}" class="btn btn-danger">Logout</a>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card-stat">
+                <i class="bi bi-wallet2 fs-1 mb-2 text-primary"></i>
+                <h5>Wallet Balance</h5>
+                <p>${{ total_earnings }}</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card-stat">
+                <i class="bi bi-people fs-1 mb-2 text-success"></i>
+                <h5>Total Referrals</h5>
+                <p>{{ total_referrals }}</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card-stat">
+                <i class="bi bi-share fs-1 mb-2 text-warning"></i>
+                <h5>Your Referral Code</h5>
+                <p>{{ profile.referral_code }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Commission History -->
+    <div class="card-section">
+        <h5 class="section-title">Commission History</h5>
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th>From</th>
+                        <th>Level</th>
+                        <th>Amount</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for commission in commissions %}
+                    <tr>
+                        <td>{{ commission.from_user.username }}</td>
+                        <td>{{ commission.level }}</td>
+                        <td>${{ commission.amount }}</td>
+                        <td>{{ commission.created_at|date:"Y-m-d H:i" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center">No commissions yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Downline Tree -->
+    <div class="card-section downline">
+        <h5 class="section-title">Downline (up to 3 levels)</h5>
+        <ul>
+            {% for node in downline_tree %}
+                <li>
+                    {{ node.user.user.username }}
+                    {% if node.children %}
+                        <ul>
+                            {% for child in node.children %}
+                                <li>{{ child.user.user.username }}
+                                    {% if child.children %}
+                                        <ul>
+                                            {% for grandchild in child.children %}
+                                                <li>{{ grandchild.user.user.username }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </li>
+            {% empty %}
+                <li>No downline yet.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+</body>
+</html>

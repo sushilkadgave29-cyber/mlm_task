@@ -1,0 +1,111 @@
+{% comment %} <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Downline Tree</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            padding: 20px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        ul.downline-tree {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        ul.downline-tree ul {
+            list-style-type: none;
+            padding-left: 20px;
+            margin-top: 5px;
+            border-left: 1px dashed #ccc;
+        }
+
+        ul.downline-tree li {
+            margin: 8px 0;
+            padding: 4px 8px;
+            background-color: #fff;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            position: relative;
+        }
+
+        ul.downline-tree li::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -20px;
+            width: 20px;
+            height: 1px;
+            background-color: #ccc;
+        }
+
+        .node-header {
+            font-weight: bold;
+            color: #007BFF;
+        }
+
+        .wallet {
+            font-size: 14px;
+            color: #555;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Downline Tree</h2>
+    <ul class="downline-tree">
+        {% for node in tree %}
+            {% include 'downline_node.html' with node=node %}
+        {% endfor %}
+    </ul>
+</body>
+</html> {% endcomment %}
+
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Downline</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <h2>Your Downline</h2>
+    <a href="{% url 'dashboard' %}" class="btn btn-secondary mb-3">Back to Dashboard</a>
+
+    <ul>
+        {% for node in tree %}
+            <li>
+                {{ node.user.user.username }}
+                {% if node.children %}
+                    <ul>
+                        {% for child in node.children %}
+                            <li>{{ child.user.user.username }}
+                                {% if child.children %}
+                                    <ul>
+                                        {% for grandchild in child.children %}
+                                            <li>{{ grandchild.user.user.username }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </li>
+        {% empty %}
+            <li>No downline yet.</li>
+        {% endfor %}
+    </ul>
+</div>
+</body>
+</html>
